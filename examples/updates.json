@@ -1,0 +1,24 @@
+{
+  "report_schema": 1,
+  "generator": "image-watch",
+  "server_id": "example-server",
+  "hostname": "example-server",
+  "updated_at": "2026-11-20T04:00:00Z",
+  "source": "diun",
+  "updates": [
+    {
+      "server_id": "example-server",
+      "observed_at": "2026-11-20T04:00:00Z",
+      "status": "update",
+      "update_available": true,
+      "image": "docker.io/library/nginx:latest",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "platform": "linux/amd64",
+      "provider": "docker",
+      "hub_link": "https://hub.docker.com/_/nginx",
+      "created": "2026-11-20 03:00:00 +0000 UTC",
+      "container_names": "web-nginx,web-nginx-b",
+      "diun_hostname": "example-server"
+    }
+  ]
+}

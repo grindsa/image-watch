@@ -1,0 +1,72 @@
+image-watch vulnerability report
+Server: example-server
+Hostname: example-server
+Scan start: 2026-11-20T02:00:00Z
+Scan finished: 2026-11-20T02:01:35Z
+Scan duration: 95s
+Images scanned: 2
+Images failed: 0
+Critical: 1
+High: 1
+Medium: 1
+Update notifications: 1
+
+Totals count each image once. Container sections repeat findings when containers share an image.
+
+Images
+  nginx:latest  critical=1 high=0 medium=1  status=ok  containers=web-nginx, web-nginx-b
+  postgres:16  critical=0 high=1 medium=0  status=ok  containers=web-db
+
+Container web-db
+  ID: def333333333
+  Image: postgres:16
+  Compose: web/db
+  OS: debian 13
+  Digest: sha256:222222222222...
+  Report: postgres_16.json
+  CRITICAL (0)
+  HIGH (1)
+    CVE-2099-9003  libpq  installed=16.1  fixed=16.2  target=postgres:16 (debian 13)
+      Example high finding, not a real vulnerability.
+      https://example.invalid/CVE-2099-9003
+  MEDIUM (0)
+
+Container web-nginx
+  ID: abc111111111
+  Image: nginx:latest
+  Compose: web/nginx
+  OS: debian 12
+  Digest: sha256:111111111111...
+  Shared image with: web-nginx-b
+  Report: nginx_latest.json
+  CRITICAL (1)
+    CVE-2099-9001  liba  installed=1.0.0  fixed=1.0.1  target=nginx:latest (debian 12)
+      Example critical finding, not a real vulnerability.
+      https://example.invalid/CVE-2099-9001
+  HIGH (0)
+  MEDIUM (1)
+    CVE-2099-9002  left-pad-example  installed=1.2.0  fixed=unfixed  target=usr/local/lib/example/package.json
+      Example medium finding, not a real vulnerability.
+      https://example.invalid/CVE-2099-9002
+
+Container web-nginx-b
+  ID: abc222222222
+  Image: nginx:latest
+  Compose: web/nginx
+  OS: debian 12
+  Digest: sha256:111111111111...
+  Shared image with: web-nginx
+  Report: nginx_latest.json
+  CRITICAL (1)
+    CVE-2099-9001  liba  installed=1.0.0  fixed=1.0.1  target=nginx:latest (debian 12)
+      Example critical finding, not a real vulnerability.
+      https://example.invalid/CVE-2099-9001
+  HIGH (0)
+  MEDIUM (1)
+    CVE-2099-9002  left-pad-example  installed=1.2.0  fixed=unfixed  target=usr/local/lib/example/package.json
+      Example medium finding, not a real vulnerability.
+      https://example.invalid/CVE-2099-9002
+
+Reports directory: /srv/data/trivy/reports
+
+This report lists CRITICAL, HIGH, and MEDIUM vulnerabilities for containers that were running at scan start.

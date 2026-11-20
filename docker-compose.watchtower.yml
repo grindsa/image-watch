@@ -1,0 +1,38 @@
+# Optional automatic updates. Not started by install.sh.
+# scripts/scan.sh runs this once, after the report, when WATCHTOWER_ENABLED=true.
+# There is no Watchtower schedule. The nightly cron job is the only clock.
+# Default is monitor-only, and only labeled containers are considered.
+# containrrr/watchtower was archived in December 2025. This file uses the
+# nickfedor/watchtower fork, which keeps the same environment variables.
+# Recreating containers requires WATCHTOWER_ENABLED=true and
+# WATCHTOWER_MONITOR_ONLY=false in .env, plus
+# com.centurylinklabs.watchtower.enable=true on each container.
+# Monitor-only can still pull images. See docs/security.md.
+
+name: watchtower
+
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    profiles: ["cron"]
+    command: ["--run-once"]
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: ${TZ:-UTC}
+      WATCHTOWER_RUN_ONCE: "true"
+      WATCHTOWER_MONITOR_ONLY: ${WATCHTOWER_MONITOR_ONLY:-true}
+      WATCHTOWER_LABEL_ENABLE: ${WATCHTOWER_LABEL_ENABLE:-true}
+      WATCHTOWER_CLEANUP: ${WATCHTOWER_CLEANUP:-false}
+      WATCHTOWER_ROLLING_RESTART: ${WATCHTOWER_ROLLING_RESTART:-true}
+      WATCHTOWER_NOTIFICATIONS_LEVEL: info
+    volumes:
+      # Writable socket: Watchtower compares digests through the Docker API
+      # and, when updates are enabled, recreates containers.
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

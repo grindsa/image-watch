@@ -1,0 +1,34 @@
+# Trivy stays running so scans do not depend on a host install of the scanner.
+# scripts/scan.sh executes `trivy image` inside this container.
+# See docs/security.md before exposing the Docker socket anywhere else.
+
+name: trivy
+
+services:
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: trivy
+    restart: unless-stopped
+    # The image user cannot write the mounted cache path under /root.
+    user: "0:0"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      TRIVY_CACHE_DIR: /root/.cache/trivy
+      TMPDIR: /root/.cache/trivy/tmp
+      TRIVY_QUIET: "true"
+    volumes:
+      # A read-only socket mount is not a security boundary. Details in docs/security.md.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/data/trivy/cache:/root/.cache/trivy
+      - /srv/data/trivy/reports:/reports
+      - /srv/data/trivy/logs:/logs
+    entrypoint: ["sleep", "infinity"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
