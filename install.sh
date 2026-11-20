@@ -95,6 +95,7 @@ fi
 
 chmod 755 \
   "$PREFIX/install.sh" \
+  "$PREFIX/deploy.sh" \
   "$PREFIX/scripts/scan.sh" \
   "$PREFIX/scripts/diun-notify.sh" \
   "$PREFIX/scripts/scan_runner.py" \
@@ -117,9 +118,26 @@ if [ ! -d /etc/cron.d ]; then
   printf '%s\n' "/etc/cron.d is not available. Cron is required." >&2
   exit 1
 fi
-cp "$PREFIX/cron/trivy-scan" /etc/cron.d/trivy-scan
-chmod 644 /etc/cron.d/trivy-scan
-printf '%s\n' "Installed /etc/cron.d/trivy-scan (03:00 local time)."
+cron_dest="/etc/cron.d/trivy-scan"
+cron_src="$PREFIX/cron/trivy-scan"
+cron_schedule=""
+if [ -f "$cron_dest" ]; then
+  cron_schedule=$(awk '
+    $1 ~ /^#/ { next }
+    $6 == "root" && $7 ~ /\/scripts\/scan\.sh$/ { print $1, $2, $3, $4, $5; exit }
+  ' "$cron_dest")
+fi
+if [ -n "$cron_schedule" ]; then
+  awk -v schedule="$cron_schedule" '
+    $6 == "root" && $7 ~ /\/scripts\/scan\.sh$/ { print schedule, "root", $7; next }
+    { print }
+  ' "$cron_src" > "$cron_dest"
+  printf '%s\n' "Updated /etc/cron.d/trivy-scan (kept schedule: ${cron_schedule})."
+else
+  cp "$cron_src" "$cron_dest"
+  printf '%s\n' "Installed /etc/cron.d/trivy-scan (03:00 local time)."
+fi
+chmod 644 "$cron_dest"
 
 if command -v systemctl >/dev/null 2>&1; then
   systemctl disable --now trivy-scan.timer >/dev/null 2>&1 || true

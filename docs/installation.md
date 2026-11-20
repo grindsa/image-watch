@@ -36,9 +36,12 @@ Logs live under `/srv/data/trivy/logs` on every distribution. If a local policy 
 
 ## Install the stack
 
-From a checkout of this repository:
+Clone onto the server, then install. `deploy.sh` updates that same checkout later, so the directory has to be the git clone:
 
 ```bash
+sudo mkdir -p /srv/stacks
+sudo git clone https://github.com/grindsa/image-watch.git /srv/stacks/trivy
+cd /srv/stacks/trivy
 sudo ./install.sh
 ```
 
@@ -51,7 +54,19 @@ Useful flags:
 | `--with-diun` | Set `DIUN_ENABLED=true` so the cron job also checks for newer images |
 | `--no-start` | Write files and the cron job only. Do not call Docker. |
 
-Cron runs `/srv/stacks/trivy/scripts/scan.sh` at 03:00 in the host's local timezone. One line is the whole schedule: the vulnerability scan, the optional DIUN check, and the optional Watchtower pass. A host that is powered off at 03:00 skips that night. To keep a fleet from hitting registries at the same minute, edit the minute field in `/etc/cron.d/trivy-scan` on each machine.
+Cron runs `/srv/stacks/trivy/scripts/scan.sh` at 03:00 in the host's local timezone. One line is the whole schedule: the vulnerability scan, the optional DIUN check, and the optional Watchtower pass. A host that is powered off at 03:00 skips that night. To keep a fleet from hitting registries at the same minute, edit the minute field in `/etc/cron.d/trivy-scan` on each machine. A later `deploy.sh` keeps those five schedule fields and refreshes the rest of the cron file.
+
+## Update
+
+On each server:
+
+```bash
+sudo /srv/stacks/trivy/deploy.sh
+```
+
+That fetches `origin/main` (override with `DEPLOY_BRANCH`), checks that revision out, and runs `install.sh` again. `.env` and `/srv/data/trivy` stay in place. The Trivy image is pulled before the container is recreated. When `DIUN_ENABLED` or `WATCHTOWER_ENABLED` is true, that image is pulled too. Neither of those containers is left running. The script prints `IMAGE_WATCH_DEPLOY_OK` as its last line when the Trivy container is running.
+
+Tracked files with local edits are reset to the fetched revision. `.env` is not a tracked file.
 
 ## Configure
 

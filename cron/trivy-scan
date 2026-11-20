@@ -1,7 +1,8 @@
 # Nightly job: vulnerability scan, then email.
 # When enabled in .env, the same run also checks for newer images and
 # applies Watchtower. There is no second schedule.
-# install.sh copies this file to /etc/cron.d/trivy-scan
+# install.sh copies this file to /etc/cron.d/trivy-scan.
+# An existing schedule on the host is kept when that file already runs scan.sh.
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 0 3 * * * root /srv/stacks/trivy/scripts/scan.sh

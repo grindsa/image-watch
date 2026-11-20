@@ -18,10 +18,14 @@ Every JSON document includes `server_id`, so a collector can merge several machi
 ## Install
 
 ```bash
+sudo git clone https://github.com/grindsa/image-watch.git /srv/stacks/trivy
+cd /srv/stacks/trivy
 sudo ./install.sh
 sudoedit /srv/stacks/trivy/.env
 sudo /srv/stacks/trivy/scripts/scan.sh
 ```
+
+Update a server from GitHub with `sudo /srv/stacks/trivy/deploy.sh`. That keeps `.env` and `/srv/data/trivy`, refreshes cron, and recreates the Trivy container.
 
 `install.sh` starts Trivy and installs one cron job, `/etc/cron.d/trivy-scan`, at 03:00 host local time. That job is the only schedule. It scans, and when you set the flags in `.env`, checks for newer images and runs Watchtower in the same run. `sudo ./install.sh --with-diun` sets `DIUN_ENABLED=true`. Watchtower stays off until `WATCHTOWER_ENABLED=true`.
 
